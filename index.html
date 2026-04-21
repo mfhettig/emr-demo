@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareChart Clinical - Patient Record</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-size: 12px;
+  background: #b0c4d8;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ===== TOP NAV ===== */
+.top-nav {
+  background: linear-gradient(to bottom, #1d4f6e, #133d58);
+  color: white;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 1px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+  user-select: none;
+}
+
+.logo-badge {
+  background: #e07f00;
+  color: white;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  margin-right: 10px;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nav-item {
+  color: #b8d4ea;
+  font-size: 11px;
+  padding: 5px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.12); color: white; }
+
+.nav-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.2); margin: 0 3px; flex-shrink: 0; }
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b8d4ea;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.user-chip {
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 3px;
+  padding: 3px 9px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+}
+
+.demo-cfg-btn {
+  background: rgba(224,127,0,0.25);
+  border: 1px solid rgba(224,127,0,0.5);
+  color: #ffc875;
+  border-radius: 3px;
+  padding: 3px 9px;
+  font-size: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.demo-cfg-btn:hover { background: rgba(224,127,0,0.4); color: white; }
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  background: linear-gradient(to bottom, #dae7f0, #cad8e6);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 2px;
+  border-bottom: 1px solid #9eb8cc;
+  flex-shrink: 0;
+}
+
+.tool-btn {
+  background: linear-gradient(to bottom, #eef5fa, #ddeaf4);
+  border: 1px solid #96b0c4;
+  height: 21px;
+  min-width: 22px;
+  padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 2px;
+  color: #2a4a62;
+}
+.tool-btn:hover { background: linear-gradient(to bottom, #e4f0f8, #d0e6f4); }
+
+.tool-sep { width: 1px; height: 16px; background: #9eb8cc; margin: 0 3px; }
+
+.search-wrap {
+  display: flex; align-items: center;
+  background: white;
+  border: 1px solid #88aabc;
+  border-radius: 2px;
+  height: 21px;
+  padding: 0 6px;
+  gap: 4px;
+  margin-left: 4px;
+}
+.search-wrap input {
+  border: none; outline: none;
+  font-size: 11px;
+  width: 190px;
+  background: transparent;
+  color: #333;
+}
+.search-wrap .close-x { color: #aaa; cursor: pointer; font-size: 10px; }
+
+/* ===== PATIENT HEADER ===== */
+.patient-header {
+  background: linear-gradient(to bottom, #eaf3f9, #dce9f3);
+  border-bottom: 2px solid #5a90b4;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.pt-name { font-size: 15px; font-weight: 700; color: #1a3a54; }
+
+.pt-meta { display: flex; gap: 16px; margin-top: 2px; }
+.pt-item { font-size: 11px; color: #555; }
+.pt-item strong { color: #1a3a54; }
+
+.pt-room {
+  margin-left: auto;
+  text-align: right;
+  font-size: 11px;
+  color: #555;
+  flex-shrink: 0;
+}
+.pt-room .room-num { font-size: 15px; font-weight: 700; color: #1a3a54; }
+
+/* ===== MAIN TAB BAR ===== */
+.tab-bar {
+  background: #b8ccd8;
+  display: flex;
+  align-items: flex-end;
+  padding: 4px 8px 0;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.tab {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 13px;
+  background: linear-gradient(to bottom, #d4e4f0, #c4d6e6);
+  border: 1px solid #88aabf;
+  border-bottom: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #2a4a62;
+  border-radius: 4px 4px 0 0;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+.tab:hover { background: linear-gradient(to bottom, #e4f0f8, #d4e6f4); }
+.tab.active {
+  background: white;
+  font-weight: 600;
+  color: #1a3a54;
+  border-bottom: 1px solid white;
+  margin-bottom: -1px;
+  z-index: 1;
+}
+
+.tab-overflow {
+  margin-left: auto;
+  padding: 5px 8px;
+  color: #5a7a92;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ===== BODY LAYOUT ===== */
+.body-wrap {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  border-top: 1px solid #7aaac0;
+}
+
+/* ===== LEFT SIDEBAR ===== */
+.sidebar {
+  width: 178px;
+  background: #eff4f8;
+  border-right: 1px solid #bfd0dc;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.sb-search {
+  padding: 6px;
+  border-bottom: 1px solid #ccdde8;
+}
+.sb-search input {
+  width: 100%; height: 22px;
+  border: 1px solid #9ab4c4;
+  padding: 0 6px;
+  font-size: 11px;
+  border-radius: 2px;
+  background: white;
+  outline: none;
+}
+
+.sb-section { padding: 7px 8px; border-bottom: 1px solid #cddde8; }
+
+.sb-section-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #6a8090;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 5px;
+}
+
+.pt-avatar {
+  width: 44px; height: 44px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #5a90b4, #1d4f6e);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; font-weight: 700;
+  margin-bottom: 7px;
+  flex-shrink: 0;
+}
+
+.provider-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 0;
+}
+.prov-avatar {
+  width: 26px; height: 26px;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 10px; font-weight: 700;
+  flex-shrink: 0;
+}
+.prov-name { font-weight: 600; color: #1a3a54; line-height: 1.3; }
+.prov-role { color: #666; font-size: 10px; }
+
+.precaution { color: #880000; font-weight: 600; padding: 2px 0; }
+.allergy { color: #333; padding: 2px 0; }
+
+/* ===== MAIN CONTENT AREA ===== */
+.main-area {
+  flex: 1;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.sub-tab-bar {
+  background: #edf3f8;
+  border-bottom: 1px solid #bfd0dc;
+  padding: 4px 10px;
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+
+.sub-tab {
+  color: #1a5080;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.sub-tab:hover { background: #dde9f4; text-decoration: none; }
+.sub-tab.active {
+  background: white;
+  border-color: #96b4c8;
+  font-weight: 600;
+  text-decoration: none;
+  color: #1a3a54;
+}
+
+.sub-tab-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+  color: #888; font-size: 11px;
+}
+
+/* ===== ARTISIGHT LAUNCH BUTTON ===== */
+.artisight-row {
+  padding: 8px 10px 4px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #e8f0f6;
+}
+
+.artisight-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #fffae8;
+  border: 1px solid #d4a830;
+  border-left: 4px solid #e07f00;
+  padding: 7px 15px 7px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #1a3a54;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.artisight-btn:hover {
+  background: #fff3c0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+.artisight-btn:active { transform: translateY(0); box-shadow: none; }
+
+.ab-cam { font-size: 15px; }
+.ab-text { color: #1a3a54; }
+.ab-mrn {
+  font-size: 10px;
+  color: #777;
+  background: #f0eee8;
+  border: 1px solid #d4c8a0;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.ab-arrow { color: #999; font-size: 12px; }
+
+/* ===== CONTENT GRID ===== */
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 7px 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+}
+
+.card {
+  background: white;
+  border: 1px solid #bccede;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.card.full { grid-column: 1 / -1; }
+.card.two { grid-column: span 2; }
+
+.card-hd {
+  background: linear-gradient(to bottom, #e6f1f8, #d9eaf4);
+  border-bottom: 1px solid #c0d2de;
+  padding: 5px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 700;
+  font-size: 11px;
+  color: #1a3a54;
+}
+.card-hd-title { display: flex; align-items: center; gap: 5px; }
+.card-hd-actions { display: flex; gap: 10px; }
+.card-action { color: #1a5080; font-size: 10px; font-weight: 400; text-decoration: underline; cursor: pointer; }
+
+.card-body { padding: 8px 10px; }
+
+/* Task list */
+.grid-hd { display: grid; grid-template-columns: 60px 1fr 80px; }
+.task-hd { font-size: 10px; font-weight: 700; color: #6a8090; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 0 5px; }
+.task-row { display: grid; grid-template-columns: 60px 1fr 80px; padding: 4px 0; border-bottom: 1px solid #eef2f6; font-size: 11px; }
+.task-row:last-child { border-bottom: none; }
+.task-time { color: #444; font-weight: 500; }
+.task-name { color: #1a5080; text-decoration: underline; cursor: pointer; }
+.task-pri { color: #666; text-align: right; }
+.section-date { font-size: 10px; color: #888; padding: 0 0 6px; }
+
+/* Vitals */
+.mini-chart-wrap {
+  position: relative;
+  height: 65px;
+  background: #f8fbfe;
+  border: 1px solid #d4e6f0;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.mini-chart-wrap svg { position: absolute; inset: 0; }
+
+.dot-legend { display: flex; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+.dot-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #555; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.vital-hd-row { display: grid; grid-template-columns: 40px 52px 52px 70px 52px; margin-bottom: 3px; }
+.vital-hd { font-size: 10px; font-weight: 700; color: #6a8090; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; }
+.vital-hd:first-child { text-align: left; }
+
+.vital-row { display: grid; grid-template-columns: 40px 52px 52px 70px 52px; padding: 3px 0; border-bottom: 1px dotted #e4eef6; font-size: 11px; align-items: center; }
+.vital-row:last-child { border-bottom: none; }
+.vital-t { color: #666; }
+.vital-v { text-align: center; font-weight: 500; }
+.vital-v.hi { color: #c22000; font-weight: 700; }
+.vital-v.lo { color: #0060a0; font-weight: 700; }
+
+/* Team */
+.team-hd-row { display: grid; grid-template-columns: 110px 95px 80px 1fr; margin-bottom: 3px; }
+.team-hd { font-size: 10px; font-weight: 700; color: #6a8090; text-transform: uppercase; letter-spacing: 0.3px; }
+.team-row { display: grid; grid-template-columns: 110px 95px 80px 1fr; padding: 4px 0; border-bottom: 1px solid #eef2f6; font-size: 11px; align-items: center; }
+.team-row:last-child { border-bottom: none; }
+.team-name { font-weight: 600; color: #1a3a54; }
+.team-role { color: #555; }
+.team-spec { color: #777; }
+.team-contact { color: #1a5080; }
+
+/* Care plan */
+.goal { padding: 5px 0; border-bottom: 1px solid #eef2f6; font-size: 11px; }
+.goal:last-child { border-bottom: none; }
+.goal-title { font-weight: 600; color: #1a3a54; display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+.goal-text { color: #555; }
+.spin-icon { color: #e07f00; font-size: 12px; cursor: pointer; }
+
+/* ===== STATUS BAR ===== */
+.status-bar {
+  background: #133d58;
+  color: #7aaac8;
+  font-size: 10px;
+  padding: 2px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+
+/* ===== SETTINGS MODAL ===== */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: white;
+  width: 500px;
+  border-radius: 6px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: modal-in 0.18s ease;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-hd {
+  background: linear-gradient(to right, #1d4f6e, #0e3348);
+  color: white;
+  padding: 16px 20px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.modal-hd-title { font-size: 14px; font-weight: 700; }
+.modal-hd-sub { font-size: 11px; color: #94c0d8; margin-top: 2px; }
+.modal-x { cursor: pointer; color: #94c0d8; font-size: 18px; line-height: 1; }
+.modal-x:hover { color: white; }
+
+.modal-body { padding: 20px; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: #444; margin-bottom: 5px; }
+.form-input {
+  width: 100%; height: 33px;
+  border: 1px solid #9ab4c4;
+  border-radius: 3px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #222;
+  background: white;
+  outline: none;
+}
+.form-input:focus { border-color: #1d4f6e; box-shadow: 0 0 0 2px rgba(29,79,110,0.14); }
+.form-hint { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.5; }
+.form-hint code { background: #f0f4f8; border: 1px solid #ccd8e4; padding: 0 4px; border-radius: 2px; font-size: 10px; color: #333; }
+
+.modal-section-title {
+  font-size: 10px; font-weight: 700; color: #6a8090; text-transform: uppercase; letter-spacing: 0.6px;
+  border-bottom: 1px solid #d4e2ec; padding-bottom: 6px; margin-bottom: 14px;
+}
+
+.url-preview {
+  background: #f0f6fa;
+  border: 1px solid #c4d8e8;
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 10px;
+  color: #555;
+  word-break: break-all;
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.modal-footer {
+  background: #f2f7fb;
+  border-top: 1px solid #ccdde8;
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-footer-hint { font-size: 10px; color: #aaa; }
+.modal-btns { display: flex; gap: 8px; }
+
+.btn {
+  height: 32px; padding: 0 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px; font-weight: 600;
+  border: 1px solid transparent;
+  transition: background 0.1s;
+}
+.btn-primary { background: #1d4f6e; color: white; border-color: #0e3348; }
+.btn-primary:hover { background: #163d58; }
+.btn-secondary { background: white; color: #444; border-color: #9ab4c4; }
+.btn-secondary:hover { background: #f0f6fa; }
+
+/* ===== LAUNCH FEEDBACK OVERLAY ===== */
+.launch-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  align-items: center; justify-content: center;
+}
+.launch-overlay.open { display: flex; }
+.launch-card {
+  background: white;
+  border-radius: 8px;
+  padding: 32px 40px;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  max-width: 380px;
+  width: 90%;
+  animation: modal-in 0.18s ease;
+}
+.launch-logo {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.launch-title { font-size: 17px; font-weight: 700; color: #1a3a54; margin-bottom: 6px; }
+.launch-sub { font-size: 12px; color: #666; margin-bottom: 16px; line-height: 1.5; }
+.launch-mrn-pill {
+  display: inline-block;
+  background: #e07f00;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 18px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.launch-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid #e0ecf4;
+  border-top-color: #1d4f6e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.launch-dismiss { font-size: 11px; color: #aaa; cursor: pointer; text-decoration: underline; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 28px; right: 20px;
+  background: #1a4a28;
+  color: white;
+  padding: 9px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.28s, transform 0.28s;
+  z-index: 3000;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="top-nav">
+  <div class="logo-badge">CareChart</div>
+  <div class="nav-item">Patient Search</div>
+  <div class="nav-item">Schedule</div>
+  <div class="nav-item" style="color:#ffc875; font-weight:600;" onclick="window.open('https://lab-demo-patient.artisight.com/#/dashboards/215','_blank')">&#128247; Artisight Mobile Carts</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item">House Census</div>
+  <div class="nav-item">Staffed Beds</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item">Care Tracker</div>
+  <div class="nav-item">Anywhere RN</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item">Reports &#9660;</div>
+  <div class="nav-right">
+    <span style="font-size:14px; cursor:pointer" title="Print">&#128438;</span>
+    <span style="font-size:14px; cursor:pointer" title="Log out">&#9654;</span>
+    <div class="user-chip">SARAH M. &nbsp;|&nbsp; CareChart</div>
+    <button class="demo-cfg-btn" onclick="openSettings()">&#9881; Demo Config</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="tool-btn">&#8592;</button>
+  <button class="tool-btn">&#8594;</button>
+  <div class="tool-sep"></div>
+  <button class="tool-btn">&#9776;</button>
+  <button class="tool-btn">&#128444;</button>
+  <button class="tool-btn">&#128198;</button>
+  <button class="tool-btn">&#128203;</button>
+  <div class="tool-sep"></div>
+  <div class="search-wrap">
+    <span style="font-size:11px; color:#aaa">&#128269;</span>
+    <input type="text" placeholder="Search patient records...">
+    <span class="close-x">&#10006;</span>
+  </div>
+</div>
+
+<!-- PATIENT HEADER -->
+<div class="patient-header">
+  <div>
+    <div class="pt-name" id="pt-name-display">Johnson, Patricia M.</div>
+    <div class="pt-meta">
+      <div class="pt-item">DOB: <strong>08/14/1968</strong></div>
+      <div class="pt-item">Age: <strong>57 yrs</strong></div>
+      <div class="pt-item">Sex: <strong>Female</strong></div>
+      <div class="pt-item">MRN: <strong id="pt-mrn-display">1234567</strong></div>
+      <div class="pt-item">Encounter: <strong>E2026-89234</strong></div>
+      <div class="pt-item">Provider: <strong>Reyes, Miguel, MD</strong></div>
+    </div>
+  </div>
+  <div class="pt-room">
+    <div>Room <span class="room-num">4W-218B</span></div>
+    <div style="color:#888; font-size:10px; margin-top:2px">Admitted: 04/18/2026</div>
+  </div>
+</div>
+
+<!-- MAIN TAB BAR -->
+<div class="tab-bar">
+  <div class="tab active">&#128203; Summary</div>
+  <div class="tab">&#128220; Chart Review</div>
+  <div class="tab">&#128138; Results</div>
+  <div class="tab">&#128202; Work List</div>
+  <div class="tab"><span style="color:#e07f00; font-size:10px">&#9679;</span> MAR</div>
+  <div class="tab">&#128200; Flowsheets</div>
+  <div class="tab">&#128436; Notes</div>
+  <div class="tab">Care Plan</div>
+  <div class="tab">Orders</div>
+  <div class="tab-overflow">&#8250;</div>
+</div>
+
+<!-- BODY LAYOUT -->
+<div class="body-wrap">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-search">
+      <input type="text" placeholder="&#128269; Search">
+    </div>
+
+    <div class="sb-section">
+      <div class="pt-avatar">PJ</div>
+      <div class="provider-row">
+        <div class="prov-avatar" style="background:#5a7fa0;">RM</div>
+        <div>
+          <div class="prov-name">Reyes, Miguel, MD</div>
+          <div class="prov-role">Attending Physician</div>
+        </div>
+      </div>
+      <div class="provider-row">
+        <div class="prov-avatar" style="background:#5a9070;">KH</div>
+        <div>
+          <div class="prov-name">Harris, Kim, RN</div>
+          <div class="prov-role">Primary Nurse</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Precautions</div>
+      <div class="precaution">&#9888;&#65039; Fall Precautions</div>
+      <div class="precaution">&#9888;&#65039; Contact Isolation</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Allergies</div>
+      <div class="allergy">Penicillin</div>
+      <div class="allergy">Sulfa drugs</div>
+      <div style="color:#888; font-size:10px; margin-top:4px">&#9432; Hover for details</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Code Status</div>
+      <div style="font-weight:700; color:#1a3a54;">Full Code</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Pharmacy</div>
+      <div style="color:#1a5080; text-decoration:underline; cursor:pointer;">Yes - Hover for Details</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="main-area">
+
+    <!-- SUB-TAB BAR -->
+    <div class="sub-tab-bar">
+      <div class="sub-tab active">Overview</div>
+      <div class="sub-tab">Index</div>
+      <div class="sub-tab">Handoff Summary</div>
+      <div class="sub-tab">Active Orders</div>
+      <div class="sub-tab">Risk Assessment</div>
+      <div class="sub-tab">FIM Evaluation</div>
+      <div class="sub-tab-right">
+        <span>Overview - Nursing</span>
+        <span style="font-size:16px; cursor:pointer; color:#888" title="Refresh">&#8635;</span>
+      </div>
+    </div>
+
+    <!-- ARTISIGHT LAUNCH ROW -->
+    <div class="artisight-row">
+      <a class="artisight-btn" id="artisight-link" href="#" onclick="launchArtisight(event)">
+        <span class="ab-cam">&#128247;</span>
+        <span class="ab-text">Click to access Artisight Camera</span>
+        <span class="ab-mrn" id="artisight-mrn-tag">MRN: 1234567</span>
+        <span class="ab-arrow">&#8599;&#65038;</span>
+      </a>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-scroll">
+
+      <!-- Work List Tasks: full width -->
+      <div class="card full">
+        <div class="card-hd">
+          <div class="card-hd-title">&#9997; Work List Tasks</div>
+        </div>
+        <div class="card-body">
+          <div class="section-date">04/21/2026 0701 - 1901</div>
+          <div class="grid-hd">
+            <div class="task-hd">Time</div>
+            <div class="task-hd">Task</div>
+            <div class="task-hd" style="text-align:right">Priority</div>
+          </div>
+          <div class="task-row">
+            <div class="task-time">1200</div>
+            <div class="task-name">Assess fall risk and update precautions documentation</div>
+            <div class="task-pri">Routine</div>
+          </div>
+          <div class="task-row">
+            <div class="task-time">1400</div>
+            <div class="task-name">Re-check PRN Med (type, reason, follow-up score required)</div>
+            <div class="task-pri">Timed</div>
+          </div>
+          <div class="task-row">
+            <div class="task-time">PRN</div>
+            <div class="task-name">Patient ambulation assist - document per care protocol</div>
+            <div class="task-pri">Routine</div>
+          </div>
+          <div class="task-row">
+            <div class="task-time">PRN</div>
+            <div class="task-name">Contact precaution education to patient and family members</div>
+            <div class="task-pri">Routine</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vital Signs: 2 cols -->
+      <div class="card two">
+        <div class="card-hd">
+          <div class="card-hd-title">&#128200; Vital Signs</div>
+          <div class="card-hd-actions">
+            <span class="card-action">View Table</span>
+            <span class="card-action">Report</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="dot-legend">
+            <div class="dot-item"><div class="dot" style="background:#9b59b6"></div>Temp (F)</div>
+            <div class="dot-item"><div class="dot" style="background:#e74c3c"></div>Heart Rate</div>
+            <div class="dot-item"><div class="dot" style="background:#27ae60"></div>Resp</div>
+            <div class="dot-item"><div class="dot" style="background:#2980b9"></div>BP (mmHg)</div>
+            <div class="dot-item"><div class="dot" style="background:#e67e22"></div>SpO2 (%)</div>
+          </div>
+          <div class="mini-chart-wrap">
+            <svg viewBox="0 0 400 65" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background grid -->
+              <line x1="0" y1="16" x2="400" y2="16" stroke="#e8f0f8" stroke-width="1"/>
+              <line x1="0" y1="32" x2="400" y2="32" stroke="#e8f0f8" stroke-width="1"/>
+              <line x1="0" y1="48" x2="400" y2="48" stroke="#e8f0f8" stroke-width="1"/>
+              <!-- Heart Rate -->
+              <polyline fill="none" stroke="#e74c3c" stroke-width="2"
+                points="0,28 66,22 133,30 200,24 266,20 333,26 400,28"/>
+              <!-- SpO2 -->
+              <polyline fill="none" stroke="#e67e22" stroke-width="1.5"
+                points="0,14 66,12 133,10 200,14 266,8 333,14 400,11"/>
+              <!-- BP systolic -->
+              <polyline fill="none" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="4,2"
+                points="0,38 66,34 133,40 200,36 266,42 333,38 400,40"/>
+              <!-- Temp -->
+              <polyline fill="none" stroke="#9b59b6" stroke-width="1.5"
+                points="0,52 66,50 133,54 200,50 266,56 333,52 400,54"/>
+              <!-- Data points HR -->
+              <circle cx="0"   cy="28" r="3" fill="#e74c3c"/>
+              <circle cx="133" cy="30" r="3" fill="#e74c3c"/>
+              <circle cx="266" cy="20" r="3" fill="#e74c3c"/>
+              <circle cx="400" cy="28" r="3" fill="#e74c3c"/>
+            </svg>
+          </div>
+          <div class="vital-hd-row">
+            <div class="vital-hd" style="text-align:left">Time</div>
+            <div class="vital-hd">Temp</div>
+            <div class="vital-hd">HR</div>
+            <div class="vital-hd">BP</div>
+            <div class="vital-hd">SpO2</div>
+          </div>
+          <div class="vital-row">
+            <div class="vital-t">0800</div>
+            <div class="vital-v">98.6</div>
+            <div class="vital-v">76</div>
+            <div class="vital-v">122/78</div>
+            <div class="vital-v">97%</div>
+          </div>
+          <div class="vital-row">
+            <div class="vital-t">1000</div>
+            <div class="vital-v">98.8</div>
+            <div class="vital-v">82</div>
+            <div class="vital-v">128/80</div>
+            <div class="vital-v">96%</div>
+          </div>
+          <div class="vital-row">
+            <div class="vital-t">1200</div>
+            <div class="vital-v hi">99.4</div>
+            <div class="vital-v hi">96</div>
+            <div class="vital-v">132/84</div>
+            <div class="vital-v lo">94%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Care Plan Goals: 1 col -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-title">&#9997; Care Plan Goals</div>
+          <div class="card-hd-actions">
+            <span class="card-action">Details</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="goal">
+            <div class="goal-title"><span class="spin-icon">&#8635;</span> Discharge Planning</div>
+            <div class="goal-text">Patient/caregiver able to verbalize discharge instructions</div>
+          </div>
+          <div class="goal">
+            <div class="goal-title"><span class="spin-icon">&#8635;</span> Pain Management</div>
+            <div class="goal-text">Patient states pain score at or below stated pain goal</div>
+          </div>
+          <div class="goal">
+            <div class="goal-title"><span class="spin-icon">&#8635;</span> Fall Prevention</div>
+            <div class="goal-text">Patient remains free from falls during hospitalization</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Treatment Team: full width -->
+      <div class="card full">
+        <div class="card-hd">
+          <div class="card-hd-title">&#128101; Treatment Team</div>
+        </div>
+        <div class="card-body">
+          <div class="team-hd-row">
+            <div class="team-hd">Provider</div>
+            <div class="team-hd">Role</div>
+            <div class="team-hd">Specialty</div>
+            <div class="team-hd">Contact</div>
+          </div>
+          <div class="team-row">
+            <div class="team-name">Reyes, Miguel, MD</div>
+            <div class="team-role">Attending Physician</div>
+            <div class="team-spec">--</div>
+            <div class="team-contact">&#128222; 864-555-4820</div>
+          </div>
+          <div class="team-row">
+            <div class="team-name">Harris, Kim, RN</div>
+            <div class="team-role">Registered Nurse</div>
+            <div class="team-spec">--</div>
+            <div class="team-contact">--</div>
+          </div>
+          <div class="team-row">
+            <div class="team-name">Okafor, Temi, PCT</div>
+            <div class="team-role">Patient Care Tech</div>
+            <div class="team-spec">--</div>
+            <div class="team-contact">--</div>
+          </div>
+          <div class="team-row">
+            <div class="team-name">Vasquez, Elena, MD</div>
+            <div class="team-role">Resident</div>
+            <div class="team-spec">Internal Medicine</div>
+            <div class="team-contact">&#128222; 864-555-4820</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-scroll -->
+  </div><!-- /main-area -->
+</div><!-- /body-wrap -->
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span>CareChart Clinical 8.4.2&nbsp;&nbsp;|&nbsp;&nbsp;Session: SARAH M.&nbsp;&nbsp;|&nbsp;&nbsp;Last Refresh: 04/21/2026 13:42</span>
+  <span>&#128274; Secure Connection&nbsp;&nbsp;|&nbsp;&nbsp;Node: PROD-CCH-02</span>
+</div>
+
+<!-- ========== SETTINGS MODAL ========== -->
+<div class="overlay" id="settings-overlay" onclick="overlayClick(event, 'settings-overlay')">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-hd-title">&#9881; Demo Configuration</div>
+        <div class="modal-hd-sub">Configure the Artisight CAL deep link for this demo session</div>
+      </div>
+      <div class="modal-x" onclick="closeSettings()">&#10005;</div>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-title">Patient Context</div>
+
+      <div class="form-group">
+        <label class="form-label" for="inp-mrn">Patient MRN</label>
+        <input class="form-input" id="inp-mrn" type="text" placeholder="e.g. 123456">
+        <div class="form-hint">This MRN is passed to Artisight when the button is clicked. Match to a real patient in the Artisight system for a live demo.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inp-name">Patient Display Name (optional)</label>
+        <input class="form-input" id="inp-name" type="text" placeholder="e.g. Johnson, Patricia M.">
+        <div class="form-hint">Shown in the patient header for demo context. Use a fictional name unless demo-ing with real data.</div>
+      </div>
+
+      <div class="modal-section-title" style="margin-top:6px">Artisight Deep Link</div>
+
+      <div class="form-group">
+        <label class="form-label" for="inp-link">Deep Link URL Template</label>
+        <input class="form-input" id="inp-link" type="text" placeholder="artisight://launch?mrn={MRN}" oninput="updatePreview()">
+        <div class="form-hint">Use <code>{MRN}</code> as the placeholder for the patient MRN.
+          Default: <code>https://lab-demo-patient.artisight.com/#/ehr-call?field_name=mrn&amp;field_value={MRN}</code></div>
+        <div class="url-preview" id="url-preview">artisight://launch?mrn=1234567</div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-hint">Settings persist in this browser</div>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save &amp; Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LAUNCH FEEDBACK OVERLAY ========== -->
+<div class="overlay" id="launch-overlay" onclick="closeLaunch()">
+  <div class="launch-card" onclick="event.stopPropagation()">
+    <div class="launch-logo">&#128247;</div>
+    <div class="launch-title">Launching Artisight Camera</div>
+    <div class="launch-sub">Opening patient view for MRN:</div>
+    <div class="launch-mrn-pill" id="launch-mrn-display">1234567</div>
+    <div class="launch-spinner"></div>
+    <div class="launch-sub" style="font-size:11px; color:#999">If the Artisight app does not open automatically,<br>check that it is installed on this device.</div>
+    <div class="launch-dismiss" onclick="closeLaunch()">Dismiss</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULTS = {
+  mrn:      '123456',
+  link:     'https://lab-demo-patient.artisight.com/#/ehr-call?field_name=mrn&field_value={MRN}',
+  patient:  'Johnson, Patricia M.'
+};
+
+function loadCfg() {
+  return {
+    mrn:     localStorage.getItem('demo_mrn')     || DEFAULTS.mrn,
+    link:    localStorage.getItem('demo_link')    || DEFAULTS.link,
+    patient: localStorage.getItem('demo_patient') || DEFAULTS.patient
+  };
+}
+
+function applyCfg(cfg) {
+  document.getElementById('pt-mrn-display').textContent    = cfg.mrn;
+  document.getElementById('artisight-mrn-tag').textContent = 'MRN: ' + cfg.mrn;
+  document.getElementById('pt-name-display').textContent   = cfg.patient;
+}
+
+// ---- Settings modal ----
+function openSettings() {
+  const cfg = loadCfg();
+  document.getElementById('inp-mrn').value  = cfg.mrn;
+  document.getElementById('inp-link').value = cfg.link;
+  document.getElementById('inp-name').value = cfg.patient;
+  updatePreview();
+  document.getElementById('settings-overlay').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function saveSettings() {
+  const mrn     = document.getElementById('inp-mrn').value.trim()  || DEFAULTS.mrn;
+  const link    = document.getElementById('inp-link').value.trim() || DEFAULTS.link;
+  const patient = document.getElementById('inp-name').value.trim() || DEFAULTS.patient;
+  localStorage.setItem('demo_mrn',     mrn);
+  localStorage.setItem('demo_link',    link);
+  localStorage.setItem('demo_patient', patient);
+  applyCfg({ mrn, link, patient });
+  closeSettings();
+  showToast('Saved. MRN set to ' + mrn);
+}
+
+function updatePreview() {
+  const link = document.getElementById('inp-link').value || DEFAULTS.link;
+  const mrn  = document.getElementById('inp-mrn').value  || DEFAULTS.mrn;
+  document.getElementById('url-preview').textContent = link.replace('{MRN}', mrn);
+}
+
+// ---- Launch Artisight ----
+function launchArtisight(e) {
+  e.preventDefault();
+  const cfg = loadCfg();
+  const url = cfg.link.replace('{MRN}', encodeURIComponent(cfg.mrn));
+
+  document.getElementById('launch-mrn-display').textContent = cfg.mrn;
+  document.getElementById('launch-overlay').classList.add('open');
+
+  // Open in new tab so the demo EMR stays visible
+  setTimeout(() => { window.open(url, '_blank'); }, 500);
+}
+
+function closeLaunch() {
+  document.getElementById('launch-overlay').classList.remove('open');
+}
+
+// ---- Overlay background click ----
+function overlayClick(e, id) {
+  if (e.target === document.getElementById(id)) {
+    if (id === 'settings-overlay') closeSettings();
+  }
+}
+
+// ---- Tab interactivity (visual only) ----
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.sub-tab').forEach(st => {
+  st.addEventListener('click', function() {
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ---- Toast ----
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ---- Init ----
+applyCfg(loadCfg());
+</script>
+</body>
+</html>
