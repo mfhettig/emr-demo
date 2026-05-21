@@ -594,6 +594,35 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .launch-dismiss { font-size: 11px; color: #aaa; cursor: pointer; text-decoration: underline; }
 
+.launch-troubleshoot-toggle {
+  font-size: 11px;
+  color: #1a5080;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 14px;
+  display: block;
+}
+.launch-troubleshoot-toggle:hover { color: #0e3348; }
+
+.launch-troubleshoot {
+  display: none;
+  text-align: left;
+  background: #f4f8fb;
+  border: 1px solid #c8dde8;
+  border-radius: 5px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #444;
+}
+.launch-troubleshoot.open { display: block; }
+.launch-troubleshoot ul {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.9;
+}
+.launch-troubleshoot li strong { color: #1a3a54; }
+
 /* ===== TOAST ===== */
 .toast {
   position: fixed; bottom: 28px; right: 20px;
@@ -1004,7 +1033,16 @@ body {
     <div class="launch-mrn-pill" id="launch-mrn-display">1234567</div>
     <div class="launch-spinner"></div>
     <div class="launch-sub" style="font-size:11px; color:#999">If the Artisight app does not open automatically,<br>check that it is installed on this device.</div>
-    <div class="launch-dismiss" onclick="closeLaunch()">Dismiss</div>
+    <span class="launch-troubleshoot-toggle" onclick="toggleTroubleshoot()">Having trouble?</span>
+    <div class="launch-troubleshoot" id="launch-troubleshoot">
+      <ul>
+        <li><strong>Nothing opened:</strong> Your browser may have blocked a popup. Click "Allow" in the address bar and try again.</li>
+        <li><strong>Wrong patient shown:</strong> Verify the MRN in Demo Config matches a patient in the Artisight system.</li>
+        <li><strong>Link not recognized:</strong> Check the deep link URL in Demo Config and confirm the Artisight app is installed on this device.</li>
+        <li><strong>Video not loading:</strong> Confirm the patient room has an active Artisight device and your network can reach the Artisight server.</li>
+      </ul>
+    </div>
+    <div class="launch-dismiss" style="margin-top:14px" onclick="closeLaunch()">Dismiss</div>
   </div>
 </div>
 
@@ -1079,6 +1117,11 @@ function launchArtisight(e) {
 
 function closeLaunch() {
   document.getElementById('launch-overlay').classList.remove('open');
+  document.getElementById('launch-troubleshoot').classList.remove('open');
+}
+
+function toggleTroubleshoot() {
+  document.getElementById('launch-troubleshoot').classList.toggle('open');
 }
 
 // ---- Overlay background click ----
