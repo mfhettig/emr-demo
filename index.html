@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#133d58">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CareChart">
 <title>CareChart Clinical - Patient Record</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -639,6 +644,185 @@ body {
   pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translateY(0); }
+
+/* ===== MOBILE-ONLY ELEMENTS (hidden on desktop) ===== */
+.mobile-title, .bottom-nav { display: none; }
+
+/* ===== TABLET ===== */
+@media (max-width: 1100px) {
+  .content-scroll { grid-template-columns: 1fr 1fr; }
+  .card.two { grid-column: 1 / -1; }
+  .nav-item:not(.nav-carts) { display: none; }
+  .nav-sep { display: none; }
+}
+
+/* ===== PHONE: app-style layout ===== */
+@media (max-width: 760px) {
+  html, body { height: auto; }
+  body {
+    font-size: 14px;
+    overflow: visible;
+    height: auto;
+    min-height: 100vh;
+    background: #e9eff4;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* App bar */
+  .top-nav {
+    position: sticky; top: 0; z-index: 60;
+    height: calc(50px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 12px 0;
+    gap: 10px;
+  }
+  .nav-item, .nav-sep, .nav-right > span, .user-chip { display: none !important; }
+  .logo-badge { margin-right: 0; font-size: 13px; padding: 4px 10px; }
+  .mobile-title { display: block; font-size: 15px; font-weight: 600; color: white; }
+  .demo-cfg-btn { font-size: 12px; padding: 7px 11px; border-radius: 6px; }
+
+  .toolbar, .status-bar, .tab-overflow, .sub-tab-right { display: none; }
+
+  /* Patient banner, pinned under the app bar */
+  .patient-header {
+    position: sticky; top: calc(50px + env(safe-area-inset-top, 0px)); z-index: 50;
+    flex-direction: column; align-items: stretch; gap: 6px;
+    padding: 10px 14px;
+    background: #f5f9fc;
+    box-shadow: 0 2px 6px rgba(19,61,88,0.12);
+  }
+  .pt-name { font-size: 18px; }
+  .pt-meta { flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
+  .pt-item { font-size: 12px; }
+  .pt-item:nth-child(5), .pt-item:nth-child(6) { display: none; }
+  .pt-room {
+    margin-left: 0; text-align: left;
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 12px;
+  }
+  .pt-room .room-num { font-size: 14px; }
+
+  /* Swipeable tab strips */
+  .tab-bar, .sub-tab-bar {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar, .sub-tab-bar::-webkit-scrollbar { display: none; }
+  .tab-bar {
+    background: white; padding: 8px 12px; gap: 6px;
+    border-bottom: 1px solid #d3e0ea; align-items: center;
+  }
+  .tab {
+    border: 1px solid #c3d5e2; border-radius: 18px;
+    background: #f2f7fb; padding: 7px 14px; font-size: 13px;
+  }
+  .tab.active {
+    background: #1d4f6e; color: white; border-color: #1d4f6e;
+    margin-bottom: 0; border-bottom: 1px solid #1d4f6e;
+  }
+  .sub-tab-bar { background: white; padding: 2px 8px 8px; gap: 2px; }
+  .sub-tab { font-size: 13px; padding: 6px 10px; text-decoration: none; color: #3a6a8c; }
+  .sub-tab.active { border-color: transparent; background: #e3eef6; border-radius: 6px; }
+
+  /* Stack layout; the page scrolls as one */
+  .body-wrap { flex-direction: column; overflow: visible; border-top: none; background: transparent; }
+  .main-area { overflow: visible; }
+
+  /* Sidebar becomes a row of safety chips */
+  .sidebar {
+    width: auto; flex-direction: row; overflow-x: auto;
+    gap: 8px; padding: 10px 12px; background: transparent;
+    border-right: none; font-size: 13px; scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .sb-search, .sb-section:nth-child(2), .hover-hint { display: none; }
+  .sb-section {
+    flex: 0 0 auto; min-width: 128px;
+    background: white; border: 1px solid #d3e0ea; border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .sb-section-title { font-size: 10.5px; }
+
+  /* Camera action: full-width, thumb-sized */
+  .artisight-row { padding: 2px 12px 10px; border-bottom: none; }
+  .artisight-btn {
+    display: flex; width: 100%; padding: 14px 16px 14px 14px;
+    font-size: 15px; border-radius: 10px; border-left-width: 5px;
+  }
+  .artisight-btn:hover { transform: none; }
+  .ab-text { flex: 1; font-weight: 600; }
+  .ab-mrn { font-size: 11px; }
+
+  /* Cards */
+  .content-scroll {
+    display: flex; flex-direction: column; gap: 12px;
+    overflow: visible; padding: 0 12px 16px;
+  }
+  .card { border-radius: 10px; border-color: #d3e0ea; }
+  .card-hd { padding: 10px 14px; font-size: 14px; background: #f5f9fc; }
+  .card-action { font-size: 12px; }
+  .card-body { padding: 10px 14px 12px; }
+  .section-date { font-size: 12px; }
+
+  .grid-hd { display: none; }
+  .task-row { grid-template-columns: 50px 1fr; row-gap: 2px; padding: 10px 0; font-size: 14px; }
+  .task-name { text-decoration: none; line-height: 1.35; }
+  .task-pri { grid-column: 2; text-align: left; font-size: 12px; color: #7a8a96; }
+
+  .mini-chart-wrap { height: 90px; }
+  .dot-item { font-size: 11px; }
+  .vital-hd-row, .vital-row { grid-template-columns: 46px repeat(4, 1fr); }
+  .vital-hd { font-size: 11px; }
+  .vital-row { font-size: 14px; padding: 8px 0; }
+
+  .goal { padding: 10px 0; font-size: 14px; }
+  .goal-text { font-size: 13px; line-height: 1.4; }
+
+  .team-hd-row { display: none; }
+  .team-row { grid-template-columns: 1fr auto; row-gap: 2px; padding: 10px 0; font-size: 14px; }
+  .team-role, .team-spec { font-size: 12px; }
+  .team-contact { grid-column: 2; grid-row: 1; text-align: right; }
+  .team-spec { grid-column: 2; grid-row: 2; text-align: right; }
+
+  /* Bottom tab bar */
+  .bottom-nav {
+    display: flex;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+    background: white;
+    border-top: 1px solid #d3e0ea;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -2px 10px rgba(19,61,88,0.08);
+  }
+  .bn-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: none; border: none; font: inherit; cursor: pointer;
+    font-size: 11px; color: #5d7385; padding: 4px 0; min-height: 48px; justify-content: center;
+  }
+  .bn-item .bn-icon { font-size: 20px; line-height: 1; }
+  .bn-item.active { color: #1d4f6e; font-weight: 700; }
+  .bn-item.bn-camera { color: #c06d00; font-weight: 600; }
+  .bn-item:focus-visible { outline: 2px solid #1d4f6e; outline-offset: -2px; border-radius: 8px; }
+
+  /* Settings modal becomes a bottom sheet */
+  #settings-overlay { align-items: flex-end; }
+  .modal {
+    width: 100%; max-height: 92vh; overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .form-label { font-size: 13px; }
+  .form-input { height: 44px; font-size: 16px; }  /* 16px stops iOS zooming on focus */
+  .form-hint { font-size: 12px; }
+  .modal-footer { flex-direction: column-reverse; align-items: stretch; gap: 10px; }
+  .modal-footer-hint { text-align: center; }
+  .modal-btns .btn { flex: 1; height: 44px; font-size: 14px; }
+
+  .launch-card { padding: 28px 22px; }
+  .launch-troubleshoot { font-size: 13px; }
+  .launch-troubleshoot-toggle, .launch-dismiss { font-size: 13px; padding: 6px 0; }
+
+  .toast { left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); text-align: center; }
+}
 </style>
 </head>
 <body>
@@ -646,9 +830,10 @@ body {
 <!-- TOP NAV -->
 <div class="top-nav">
   <div class="logo-badge">CareChart</div>
+  <div class="mobile-title">Patient Record</div>
   <div class="nav-item">Patient Search</div>
   <div class="nav-item">Schedule</div>
-  <div class="nav-item" style="color:#ffc875; font-weight:600;" onclick="window.open('https://lab-demo-patient.artisight.com/#/dashboards/215','_blank')">&#128247; Artisight Mobile Carts</div>
+  <div class="nav-item nav-carts" style="color:#ffc875; font-weight:600;" onclick="window.open('https://lab-demo-patient.artisight.com/#/dashboards/215','_blank')">&#128247; Artisight Mobile Carts</div>
   <div class="nav-sep"></div>
   <div class="nav-item">House Census</div>
   <div class="nav-item">Staffed Beds</div>
@@ -752,7 +937,7 @@ body {
       <div class="sb-section-title">Allergies</div>
       <div class="allergy">Penicillin</div>
       <div class="allergy">Sulfa drugs</div>
-      <div style="color:#888; font-size:10px; margin-top:4px">&#9432; Hover for details</div>
+      <div class="hover-hint" style="color:#888; font-size:10px; margin-top:4px">&#9432; Hover for details</div>
     </div>
 
     <div class="sb-section">
@@ -976,6 +1161,14 @@ body {
   <span>CareChart Clinical 8.4.2&nbsp;&nbsp;|&nbsp;&nbsp;Session: SARAH M.&nbsp;&nbsp;|&nbsp;&nbsp;Last Refresh: 04/21/2026 13:42</span>
   <span>&#128274; Secure Connection&nbsp;&nbsp;|&nbsp;&nbsp;Node: PROD-CCH-02</span>
 </div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav" aria-label="Main">
+  <button class="bn-item active" onclick="window.scrollTo({top:0, behavior:'smooth'})"><span class="bn-icon">&#128203;</span>Chart</button>
+  <button class="bn-item bn-camera" onclick="launchArtisight(event)"><span class="bn-icon">&#128247;</span>Camera</button>
+  <button class="bn-item" onclick="window.open('https://lab-demo-patient.artisight.com/#/dashboards/215','_blank')"><span class="bn-icon">&#128722;</span>Carts</button>
+  <button class="bn-item" onclick="openSettings()"><span class="bn-icon">&#9881;</span>Config</button>
+</nav>
 
 <!-- ========== SETTINGS MODAL ========== -->
 <div class="overlay" id="settings-overlay" onclick="overlayClick(event, 'settings-overlay')">
