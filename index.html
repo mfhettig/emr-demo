@@ -323,6 +323,9 @@ body {
 
 /* ===== ARTISIGHT LAUNCH BUTTON ===== */
 .artisight-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 8px 10px 4px;
   flex-shrink: 0;
   border-bottom: 1px solid #e8f0f6;
@@ -587,6 +590,8 @@ body {
   padding: 5px 18px;
   border-radius: 20px;
   margin-bottom: 20px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .launch-spinner {
   width: 28px; height: 28px;
@@ -744,7 +749,7 @@ body {
   .sb-section-title { font-size: 10.5px; }
 
   /* Camera action: full-width, thumb-sized */
-  .artisight-row { padding: 2px 12px 10px; border-bottom: none; }
+  .artisight-row { flex-direction: column; padding: 2px 12px 10px; border-bottom: none; }
   .artisight-btn {
     display: flex; width: 100%; padding: 14px 16px 14px 14px;
     font-size: 15px; border-radius: 10px; border-left-width: 5px;
@@ -974,6 +979,12 @@ body {
         <span class="ab-cam">&#128247;</span>
         <span class="ab-text">Click to access Artisight Camera</span>
         <span class="ab-mrn" id="artisight-mrn-tag">MRN: 1234567</span>
+        <span class="ab-arrow">&#8599;&#65038;</span>
+      </a>
+      <a class="artisight-btn" id="artisight-qa-link" href="#" onclick="launchArtisightQA(event)">
+        <span class="ab-cam">&#128247;</span>
+        <span class="ab-text">Click to access Artisight Camera (QA)</span>
+        <span class="ab-mrn" id="artisight-device-tag">Device: 1db8c230</span>
         <span class="ab-arrow">&#8599;&#65038;</span>
       </a>
     </div>
@@ -1206,6 +1217,16 @@ body {
         <div class="url-preview" id="url-preview">artisight://launch?mrn=1234567</div>
       </div>
 
+      <div class="modal-section-title" style="margin-top:6px">Artisight QA Launch</div>
+
+      <div class="form-group">
+        <label class="form-label" for="inp-device">QA Device ID</label>
+        <input class="form-input" id="inp-device" type="text" placeholder="e.g. 1db8c230-80cc-4e17-84f9-622a63e0215d" oninput="updatePreview()">
+        <div class="form-hint">Used by the (QA) launch button.
+          Default: <code>1db8c230-80cc-4e17-84f9-622a63e0215d</code></div>
+        <div class="url-preview" id="url-preview-qa"></div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <div class="modal-footer-hint">Settings persist in this browser</div>
@@ -1222,7 +1243,7 @@ body {
   <div class="launch-card" onclick="event.stopPropagation()">
     <div class="launch-logo">&#128247;</div>
     <div class="launch-title">Launching Artisight Camera</div>
-    <div class="launch-sub">Opening patient view for MRN:</div>
+    <div class="launch-sub" id="launch-sub-label">Opening patient view for MRN:</div>
     <div class="launch-mrn-pill" id="launch-mrn-display">1234567</div>
     <div class="launch-spinner"></div>
     <div class="launch-sub" style="font-size:11px; color:#999">If the Artisight app does not open automatically,<br>check that it is installed on this device.</div>
@@ -1244,14 +1265,35 @@ body {
 const DEFAULTS = {
   mrn:      '123456',
   link:     'https://lab-demo-patient.artisight.com/#/ehr-call?field_name=mrn&field_value={MRN}',
-  patient:  'Johnson, Patricia M.'
+  patient:  'Johnson, Patricia M.',
+  deviceId: '1db8c230-80cc-4e17-84f9-622a63e0215d'
 };
+
+const QA_LINK = 'https://lab-qa-patient.artisight.com/virtual-room/ehr-call?device_id={DEVICE_ID}';
+
+function qaUrl(deviceId) {
+  return QA_LINK.replace('{DEVICE_ID}', encodeURIComponent(deviceId));
+}
+
+// Phones/tablets: open in the same tab instead of a new one
+function isMobileDevice() {
+  if (navigator.userAgentData && navigator.userAgentData.mobile) return true;
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) return true;
+  // iPadOS reports itself as a Mac
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
+function openLink(url) {
+  if (isMobileDevice()) window.location.href = url;
+  else window.open(url, '_blank');
+}
 
 function loadCfg() {
   return {
     mrn:     localStorage.getItem('demo_mrn')     || DEFAULTS.mrn,
     link:    localStorage.getItem('demo_link')    || DEFAULTS.link,
-    patient: localStorage.getItem('demo_patient') || DEFAULTS.patient
+    patient: localStorage.getItem('demo_patient') || DEFAULTS.patient,
+    deviceId: localStorage.getItem('demo_device_id') || DEFAULTS.deviceId
   };
 }
 
@@ -1259,6 +1301,8 @@ function applyCfg(cfg) {
   document.getElementById('pt-mrn-display').textContent    = cfg.mrn;
   document.getElementById('artisight-mrn-tag').textContent = 'MRN: ' + cfg.mrn;
   document.getElementById('pt-name-display').textContent   = cfg.patient;
+  document.getElementById('artisight-device-tag').textContent = 'Device: ' + cfg.deviceId.split('-')[0];
+  document.getElementById('artisight-device-tag').title = cfg.deviceId;
 }
 
 // ---- Settings modal ----
@@ -1267,6 +1311,7 @@ function openSettings() {
   document.getElementById('inp-mrn').value  = cfg.mrn;
   document.getElementById('inp-link').value = cfg.link;
   document.getElementById('inp-name').value = cfg.patient;
+  document.getElementById('inp-device').value = cfg.deviceId;
   updatePreview();
   document.getElementById('settings-overlay').classList.add('open');
 }
@@ -1279,10 +1324,12 @@ function saveSettings() {
   const mrn     = document.getElementById('inp-mrn').value.trim()  || DEFAULTS.mrn;
   const link    = document.getElementById('inp-link').value.trim() || DEFAULTS.link;
   const patient = document.getElementById('inp-name').value.trim() || DEFAULTS.patient;
+  const deviceId = document.getElementById('inp-device').value.trim() || DEFAULTS.deviceId;
   localStorage.setItem('demo_mrn',     mrn);
   localStorage.setItem('demo_link',    link);
   localStorage.setItem('demo_patient', patient);
-  applyCfg({ mrn, link, patient });
+  localStorage.setItem('demo_device_id', deviceId);
+  applyCfg({ mrn, link, patient, deviceId });
   closeSettings();
   showToast('Saved. MRN set to ' + mrn);
 }
@@ -1291,6 +1338,8 @@ function updatePreview() {
   const link = document.getElementById('inp-link').value || DEFAULTS.link;
   const mrn  = document.getElementById('inp-mrn').value  || DEFAULTS.mrn;
   document.getElementById('url-preview').textContent = link.replace('{MRN}', mrn);
+  const deviceId = document.getElementById('inp-device').value.trim() || DEFAULTS.deviceId;
+  document.getElementById('url-preview-qa').textContent = qaUrl(deviceId);
 }
 
 // ---- Launch Artisight ----
@@ -1299,12 +1348,27 @@ function launchArtisight(e) {
   const cfg = loadCfg();
   const url = cfg.link.replace('{MRN}', encodeURIComponent(cfg.mrn));
 
+  document.getElementById('launch-sub-label').textContent = 'Opening patient view for MRN:';
   document.getElementById('launch-mrn-display').textContent = cfg.mrn;
   document.getElementById('launch-overlay').classList.add('open');
 
-  // Open in new tab so the demo EMR stays visible
-  setTimeout(() => { window.open(url, '_blank'); }, 500);
+  // Desktop: new tab so the demo EMR stays visible. Mobile: same tab.
+  setTimeout(() => { openLink(url); }, 500);
 }
+
+function launchArtisightQA(e) {
+  e.preventDefault();
+  const cfg = loadCfg();
+
+  document.getElementById('launch-sub-label').textContent = 'Opening QA virtual room for device:';
+  document.getElementById('launch-mrn-display').textContent = cfg.deviceId;
+  document.getElementById('launch-overlay').classList.add('open');
+
+  setTimeout(() => { openLink(qaUrl(cfg.deviceId)); }, 500);
+}
+
+// Returning via Back on mobile restores the page from cache; clear the launch overlay
+window.addEventListener('pageshow', closeLaunch);
 
 function closeLaunch() {
   document.getElementById('launch-overlay').classList.remove('open');
